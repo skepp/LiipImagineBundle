@@ -55,8 +55,8 @@ class FilterService
         DataManager $dataManager,
         FilterManager $filterManager,
         CacheManager $cacheManager,
-        bool $webpGenerate,
-        array $webpOptions,
+        bool $webpGenerate = false,
+        array $webpOptions = [],
         ?LoggerInterface $logger = null
     ) {
         $this->dataManager = $dataManager;
