@@ -108,13 +108,63 @@ final class LazyFilterRuntime implements RuntimeExtensionInterface
             return $resolvedPath.$separator.$this->assetVersion;
         }
 
+
+
         if (\array_key_exists($path, $this->jsonManifest)) {
+
             $prefixedSlash = '/' !== mb_substr($path, 0, 1) && '/' === mb_substr($this->jsonManifest[$path], 0, 1);
             $versionedPath = $prefixedSlash ? mb_substr($this->jsonManifest[$path], 1) : $this->jsonManifest[$path];
 
-            $resolvedPath = str_replace($path, $versionedPath, $resolvedPath);
+            $originalExt = pathinfo($path, PATHINFO_EXTENSION);
+            $resolvedExt = pathinfo($resolvedPath, PATHINFO_EXTENSION);
+
+            if ($originalExt !== $resolvedExt) {
+                $path = str_replace('.'.$originalExt, '.'.$resolvedExt, $path);
+                $versionedPath = str_replace('.'.$originalExt, '.'.$resolvedExt, $versionedPath);
+            }
+
+            $versioning = $this->captureVersion(pathinfo($path, PATHINFO_BASENAME), pathinfo($versionedPath, PATHINFO_BASENAME));
+            $resolvedFilename = pathinfo($resolvedPath, PATHINFO_BASENAME);
+            $resolvedDir = pathinfo($resolvedPath, PATHINFO_DIRNAME);
+            $resolvedPath = $resolvedDir.'/'.$this->insertVersion($resolvedFilename, $versioning['version'], $versioning['position']);
         }
 
         return $resolvedPath;
+    }
+
+    /**
+     * Capture the versioning string from the versioned filename
+     */
+    private function captureVersion(string $originalFilename, string $versionedFilename): array
+    {
+        $originalLength = strlen($originalFilename);
+        $versionedLength = strlen($versionedFilename);
+
+        for ($i = 0; $i < $originalLength && $i < $versionedLength; $i++) {
+            if ($originalFilename[$i] !== $versionedFilename[$i]) {
+                break;
+            }
+        }
+
+        $version = substr($versionedFilename, $i, $versionedLength - $originalLength);
+
+        return ['version' => $version, 'position' => $i];
+    }
+
+    /**
+     * Insert the version string into our resolved filename
+     */
+    private function insertVersion(string $resolvedFilename, string $version, int $position): string
+    {
+        if ($position < 0 || $position > strlen($resolvedFilename)) {
+            return $resolvedFilename;
+        }
+
+        $firstPart = substr($resolvedFilename, 0, $position);
+        $secondPart = substr($resolvedFilename, $position);
+
+        $versionedFilename = $firstPart . $version . $secondPart;
+
+        return $versionedFilename;
     }
 }
