@@ -17,7 +17,7 @@ setting for ``framework.assets.version``. It strips the version from the file
 name and appends it to the resulting image URL so that the file is found and
 cache busting is used.
 
-Since LiipImagineBundle version 2.12, we integrate with the configuration
+Since LiipImagineBundle version 2.13, we integrate with the configuration
 setting for ``framework.assets.json_manifest_path``. The manifest file is used
 to lookup the location of the actual file, and append the versioning string to
 the resulting image URL so that cache busting is used.
