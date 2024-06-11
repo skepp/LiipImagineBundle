@@ -128,6 +128,29 @@ class LazyFilterRuntimeTest extends AbstractTest
         $this->assertSame($expectedPath, $actualPath);
     }
 
+    /**
+     * @dataProvider provideJsonManifestSwapExt
+     */
+    public function testJsonManifestVersionHandlingWithExtensionSwapping(string $sourcePath, string $versionedPath, $originalExt, $newExt): void
+    {
+        $this->runtime = new LazyFilterRuntime($this->manager, null, self::JSON_MANIFEST);
+
+        $cachePath = 'image/cache/'.self::FILTER.'/'.('/' === (mb_substr($sourcePath, 0, 1)) ? mb_substr($sourcePath, 1) : $sourcePath);
+        $cachePath = str_replace('.'.$originalExt, '.'.$newExt, $cachePath);
+        $expectedPath = 'image/cache/'.self::FILTER.'/'.('/' === (mb_substr($versionedPath, 0, 1)) ? mb_substr($versionedPath, 1) : $versionedPath);
+        $expectedPath = str_replace('.'.$originalExt, '.'.$newExt, $expectedPath);
+
+        $this->manager
+            ->expects($this->once())
+            ->method('getBrowserPath')
+            ->with($sourcePath, self::FILTER)
+            ->willReturn($cachePath);
+
+        $actualPath = $this->runtime->filter($versionedPath, self::FILTER);
+
+        $this->assertSame($expectedPath, $actualPath);
+    }
+
     public function provideJsonManifest(): array
     {
         return [
@@ -135,6 +158,16 @@ class LazyFilterRuntimeTest extends AbstractTest
             'in filename, no slash' => [array_keys(self::JSON_MANIFEST)[1], array_values(self::JSON_MANIFEST)[1]],
             'query parameter, slash' => [array_keys(self::JSON_MANIFEST)[2], array_values(self::JSON_MANIFEST)[2]],
             'in filename, slash' => [array_keys(self::JSON_MANIFEST)[3], array_values(self::JSON_MANIFEST)[3]],
+        ];
+    }
+
+    public function provideJsonManifestSwapExt(): array
+    {
+        return [
+            'query parameter, no slash' => [array_keys(self::JSON_MANIFEST)[0], array_values(self::JSON_MANIFEST)[0], 'png', 'webp'],
+            'in filename, no slash' => [array_keys(self::JSON_MANIFEST)[1], array_values(self::JSON_MANIFEST)[1], 'png', 'webp'],
+            'query parameter, slash' => [array_keys(self::JSON_MANIFEST)[2], array_values(self::JSON_MANIFEST)[2], 'png', 'webp'],
+            'in filename, slash' => [array_keys(self::JSON_MANIFEST)[3], array_values(self::JSON_MANIFEST)[3], 'png', 'webp'],
         ];
     }
 
