@@ -4,7 +4,7 @@ This file contains a complete enumeration of all [pull requests](https://github.
 for a given releases. Unreleased, upcoming changes will be updated here periodically; reference the next release on our
 [milestones](https://github.com/liip/LiipImagineBundle/milestones) page for the latest changes.
 
-## [2.12.0](https://github.com/liip/LiipImagineBundle/tree/2.12.0)
+## [2.13.0](https://github.com/liip/LiipImagineBundle/tree/2.13.0)
 
 - Support JsonManifestVersionStrategy that was added in Symfony 6.
 
